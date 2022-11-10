@@ -1,0 +1,23 @@
+{
+  "name": "sumadiface",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^21.2.1",
+    "electron-packager": "^17.1.1"
+  },
+  "dependencies": {
+    "@mediapipe/camera_utils": "^0.3.1640029074",
+    "@mediapipe/control_utils": "^0.6.1629159505",
+    "@mediapipe/drawing_utils": "^0.3.1620248257",
+    "@mediapipe/face_mesh": "^0.4.1633559619",
+    "@tensorflow-models/face-landmarks-detection": "^1.0.2"
+  }
+}

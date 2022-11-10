@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./node_modules/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="./node_modules/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="./node_modules/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="./node_modules/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <div class="container">
+    <video style="display: none;" class="input_video"></video>
+    <canvas class="output_canvas" width="800px" height="600px"></canvas>
+  </div>
+  <script type="module">
+    const videoElement = document.getElementsByClassName('input_video')[0];
+    const canvasElement = document.getElementsByClassName('output_canvas')[0];
+    const canvasCtx = canvasElement.getContext('2d');
+    
+    function onResults(results) {
+      console.log(results);
+      canvasCtx.save();
+      canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+      canvasCtx.drawImage(
+          results.image, 0, 0, canvasElement.width, canvasElement.height);
+      canvasCtx.lineWidth = 10;
+      canvasCtx.strokeStyle = "blue";
+      canvasCtx.strokeRect(220, 220, 290, 290);
+      
+      // canvasCtx.fillStyle = "red";
+      // canvasCtx.font = "30px Comic Sans MS";
+      // canvasCtx.strokeText("Canvas Rocks!", 500, 300);
+      
+      switch(results.multiFaceLandmarks.length){
+        
+        
+        case 1: {
+            for (const landmarks of results.multiFaceLandmarks) {
+            drawConnectors(canvasCtx, landmarks, FACEMESH_TESSELATION,
+                          {color: '#C0C0C070', lineWidth: 1});
+            //console.log(FACEMESH_RIGHT_EYE);
+            drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_EYE, {color: '#FF3030'});
+            // code 
+            // canvasCtx.strokeRect(FACEMESH_RIGHT_EYE[0][0], FACEMESH_RIGHT_EYE[0][1], 1, 1);
+            //console.log(FACEMESH_RIGHT_EYE[0])
+            //canvasCtx.fillStyle = "#fcfcfc";
+            //canvasCtx.fillRect(FACEMESH_RIGHT_EYE[0][0], FACEMESH_RIGHT_EYE[0][1],1,1);
+            // drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_EYE[0], {color: '#fcfcfc'});
+            // code 
+            drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_EYEBROW, {color: '#FF3030'});
+            drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_IRIS, {color: '#FF3030'});
+            drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_EYE, {color: '#30FF30'});
+            drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_EYEBROW, {color: '#30FF30'});
+            drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_IRIS, {color: '#30FF30'});
+            // drawConnectors(canvasCtx, landmarks, FACEMESH_FACE_OVAL, {color: '#E0E0E0'});
+            // drawConnectors(canvasCtx, landmarks, FACEMESH_LIPS, {color: '#E0E0E0'});
+          }
+          break;
+        }
+        case 2: {
+            // canvasCtx.fillText("No se detecto Rostro Real Time", 100, 500);
+            canvasCtx.font = "30px Comic Sans MS";
+            canvasCtx.fillStyle = "red";
+            canvasCtx.textAlign = "center";
+            canvasCtx.fillText("Two Face Detected", canvasElement.width/3, canvasElement.height/3);
+        }
+        default: {
+            // canvasCtx.fillText("No se detecto Rostro Real Time", 100, 500);
+            canvasCtx.font = "30px Comic Sans MS";
+            canvasCtx.fillStyle = "red";
+            canvasCtx.textAlign = "center";
+            canvasCtx.fillText("No Face Detected", canvasElement.width/2, canvasElement.height/2);
+          break; 
+        }
+      }
+      canvasCtx.restore();
+    }
+    
+    const faceMesh = new FaceMesh({locateFile: (file) => {
+      return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+    }});
+    faceMesh.setOptions({
+      maxNumFaces: 2,
+      refineLandmarks: true,
+      minDetectionConfidence: 0.9,
+      minTrackingConfidence: 0.9
+    });
+    faceMesh.onResults(onResults);
+    
+    
+    const camera = new Camera(videoElement, {
+      onFrame: async () => {
+        await faceMesh.send({image: videoElement});
+      },
+      width: 800,
+      height: 600
+    });
+    camera.start();
+    </script>
+</body>
+</html>
